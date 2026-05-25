@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield | Register Secure Account</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .password-strength-meter {
+      height: 4px;
+      background: rgba(255,255,255,0.05);
+      margin-top: 8px;
+      border-radius: 2px;
+      overflow: hidden;
+      display: none;
+    }
+    .password-strength-bar {
+      height: 100%;
+      width: 0;
+      transition: all 0.3s ease;
+    }
+    .password-strength-text {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-align: right;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <div class="logo-icon">🛡️</div>
+        <span>CyberShield</span>
+      </a>
+      <nav class="nav-links" id="navbar-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/login" class="nav-link">Login</a>
+        <a href="/signup" class="btn btn-primary">Sign Up</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="auth-container">
+    <div class="glass-card auth-card">
+      <h2>Create Account</h2>
+      <p>Configure a secure credential profile to launch</p>
+
+      <form id="signup-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            placeholder="Letters and numbers only" 
+            class="input-control" 
+            required 
+            autocomplete="username"
+            minlength="3"
+            maxlength="20"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Min 8 chars, uppercase, digit, symbol" 
+            class="input-control" 
+            required
+            autocomplete="new-password"
+          >
+          <div class="password-strength-meter" id="pw-strength-meter">
+            <div class="password-strength-bar" id="pw-strength-bar"></div>
+          </div>
+          <div class="password-strength-text" id="pw-strength-text">Strength: Weak</div>
+        </div>
+
+        <div class="form-group">
+          <label for="captchaAnswer">Mathematical CAPTCHA Verification</label>
+          <div class="captcha-container">
+            <div class="captcha-img" id="captcha-box">
+              <!-- SVG captcha will load here -->
+              Loading CAPTCHA...
+            </div>
+            <button type="button" class="captcha-refresh" id="btn-refresh-captcha" title="Refresh CAPTCHA">
+              🔄
+            </button>
+          </div>
+          <input 
+            type="number" 
+            id="captchaAnswer" 
+            name="captchaAnswer" 
+            placeholder="Enter answer" 
+            class="input-control" 
+            required
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+          Create Profile
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already registered? <a href="/login">Login Securely</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/main.js"></script>
+  <script>
+    // Password strength check
+    const passwordInput = document.getElementById('password');
+    const pwMeter = document.getElementById('pw-strength-meter');
+    const pwBar = document.getElementById('pw-strength-bar');
+    const pwText = document.getElementById('pw-strength-text');
+
+    passwordInput.addEventListener('input', () => {
+      const val = passwordInput.value;
+      if (val === '') {
+        pwMeter.style.display = 'none';
+        pwText.style.display = 'none';
+        return;
+      }
+
+      pwMeter.style.display = 'block';
+      pwText.style.display = 'block';
+
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[a-z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[!@#$%^&*]/.test(val)) score++;
+
+      let color = '#ff3838';
+      let strength = 'Weak';
+      let pct = (score / 5) * 100;
+
+      if (score >= 4) {
+        color = '#00ffaa';
+        strength = 'Strong (Secure)';
+      } else if (score >= 3) {
+        color = '#ffb300';
+        strength = 'Medium';
+      }
+
+      pwBar.style.width = `${pct}%`;
+      pwBar.style.backgroundColor = color;
+      pwText.innerHTML = `Strength: <span style="color: ${color}">${strength}</span>`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield | User Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <div class="logo-icon">🛡️</div>
+        <span>CyberShield</span>
+      </a>
+      <nav class="nav-links" id="navbar-links">
+        <a href="/" class="nav-link">Home</a>
+        <span class="role-badge user" id="user-navbar-role">User</span>
+        <button id="btn-logout" class="btn btn-secondary btn-sm">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <div class="user-welcome">
+        <h2>Dashboard</h2>
+        <p>Manage your secure personal profile configurations</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span class="role-badge user" id="user-profile-role">User Account</span>
+        <span id="user-profile-name" style="font-weight: 700; color: #fff;">Username</span>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Section 1: Encryption at Rest Demonstration -->
+      <div class="glass-card" style="padding: 30px;">
+        <h3 class="card-title">
+          <span class="card-title-icon">🔐</span>
+          AES-256-GCM Data Encryption Demo
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+          This demo shows <strong>symmetric encryption at rest</strong>. Any text saved here is encrypted on the server before going to MongoDB. Below you can view the actual database ciphertext versus the secure plaintext.
+        </p>
+
+        <div class="encrypt-demo-container">
+          <div class="form-group">
+            <label for="personal-note-input">Personal Sensitive Note</label>
+            <textarea 
+              id="personal-note-input" 
+              rows="4" 
+              class="input-control" 
+              placeholder="Enter sensitive personal information here... (e.g., SSN, secret keys)"
+              style="resize: none;"
+            ></textarea>
+          </div>
+
+          <button id="btn-save-note" class="btn btn-primary" style="align-self: flex-start;">
+            Encrypt & Save Note
+          </button>
+
+          <div style="margin-top: 10px;">
+            <label>Database Stored Ciphertext (IV : Tag : Cipher)</label>
+            <div class="crypto-display cipher" id="note-cipher-display">
+              Loading encrypted ciphertext...
+            </div>
+          </div>
+
+          <div>
+            <label>Decrypted Server Plaintext</label>
+            <div class="crypto-display plain" id="note-plain-display">
+              Loading decrypted plaintext...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Multi-Factor Authentication Panel -->
+      <div class="glass-card" style="padding: 30px;">
+        <h3 class="card-title">
+          <span class="card-title-icon">📲</span>
+          Multi-Factor Authentication (2FA)
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+          Add a secondary layer of cryptographic validation to secure your profile against unauthorized login hijacking.
+        </p>
+
+        <!-- Dynamic MFA Status States -->
+        <div id="mfa-status-active-container" style="display: none; text-align: center; padding: 20px 0;">
+          <div class="mfa-status-indicator active">🛡️ MFA PROTECTION ENABLED</div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; max-width: 360px; margin-left: auto; margin-right: auto;">
+            Your account is locked with second-factor Google Authenticator codes. On login, you will be strictly challenged for OTP tokens.
+          </p>
+
+          <div class="form-group" style="max-width: 280px; margin: 0 auto 20px auto;">
+            <label for="disable-mfa-token">Authenticator Token</label>
+            <input 
+              type="text" 
+              id="disable-mfa-token" 
+              class="input-control" 
+              placeholder="000000"
+              style="text-align: center; font-size: 1.2rem; letter-spacing: 0.15em;"
+              maxlength="6"
+            >
+          </div>
+          <button id="btn-disable-mfa" class="btn btn-danger">
+            Disable MFA Protection
+          </button>
+        </div>
+
+        <div id="mfa-status-inactive-container" style="display: none; text-align: center; padding: 20px 0;">
+          <div class="mfa-status-indicator inactive">⚠️ MFA PROTECTION INACTIVE</div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px;">
+            Secondary TOTP authentication is disabled. Your account is exposed to primary single-factor credential hazards.
+          </p>
+          <button id="btn-setup-mfa" class="btn btn-primary">
+            Configure MFA Security
+          </button>
+        </div>
+
+        <!-- Dynamic MFA Binding Container -->
+        <div id="mfa-setup-binding-container" style="display: none; border-top: 1px solid var(--border-color); padding-top: 24px;">
+          <h4 style="margin-bottom: 12px; font-size: 1.1rem;">Setup Instructions:</h4>
+          <ol style="margin-left: 20px; font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+            <li>Scan the QR code underneath using Google Authenticator or Microsoft Authenticator.</li>
+            <li>If unable to scan, manually enter the secure key displayed.</li>
+            <li>Submit the 6-digit validation token generated by your app below to enable MFA.</li>
+          </ol>
+
+          <div class="mfa-setup-box">
+            <div class="qr-code-wrapper">
+              <img id="mfa-qr-code" class="qr-code-img" alt="MFA QR Code Setup">
+            </div>
+            <div>
+              <span style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Manual Setup Key:</span>
+              <div class="mfa-secret-text" id="mfa-secret-key">SECRETKEYBASE32</div>
+            </div>
+
+            <div class="form-group" style="max-width: 220px; margin: 0 auto 20px auto;">
+              <label for="mfa-verify-code">6-Digit Verification Code</label>
+              <input 
+                type="text" 
+                id="mfa-verify-code" 
+                class="input-control" 
+                placeholder="000000"
+                style="text-align: center; font-size: 1.2rem; letter-spacing: 0.15em;"
+                maxlength="6"
+              >
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: center;">
+              <button id="btn-cancel-mfa-setup" class="btn btn-secondary btn-sm">Cancel Setup</button>
+              <button id="btn-confirm-mfa-setup" class="btn btn-primary btn-sm">Verify & Activate</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

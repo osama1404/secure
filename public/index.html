@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secure Web Application demonstrating threat modeling, encryption, MFA, input validation, and role-based access controls for SSD.">
+  <title>CyberShield | Secure Web Application</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <div class="logo-icon">🛡️</div>
+        <span>CyberShield</span>
+      </a>
+      <nav class="nav-links" id="navbar-links">
+        <!-- Links will be injected dynamically based on session status -->
+        <a href="/login" class="nav-link">Login</a>
+        <a href="/signup" class="btn btn-primary">Sign Up</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="badge">Secure Software Development Project</div>
+    <h1 class="hero-title">Secure Web Application & Threat Modeling Platform</h1>
+    <p class="hero-subtitle">
+      Designed with robust security at its core, this platform implements advanced cryptographic, session control, access management, and threat mitigations to deliver absolute assurance.
+    </p>
+    <div class="hero-actions" id="hero-action-buttons">
+      <a href="/login" class="btn btn-primary">Launch Application</a>
+      <a href="/signup" class="btn btn-secondary">Create Secure Account</a>
+    </div>
+  </section>
+
+  <!-- Core Security Features Grid -->
+  <section class="features-grid">
+    <!-- Feature 1 -->
+    <div class="glass-card feature-card">
+      <div class="feature-icon">🔑</div>
+      <h3 class="feature-title">Auth & Authorization (RBAC)</h3>
+      <p class="feature-desc">Secure user and admin authentication. Route-level Role-Based Access Controls restrict sensitive administrative functions.</p>
+    </div>
+    
+    <!-- Feature 2 -->
+    <div class="glass-card feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3 class="feature-title">Session Hijacking Mitigations</h3>
+      <p class="feature-desc">Protections against session fixation and hijacking by binding sessions to User-Agent/IP hashes and using secure SameSite cookies.</p>
+    </div>
+
+    <!-- Feature 3 -->
+    <div class="glass-card feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3 class="feature-title">AES-256-GCM Encryption</h3>
+      <p class="feature-desc">Sensitive data is encrypted at rest using industry-standard AES-256-GCM. Passwords are secured using salted Bcrypt hashing.</p>
+    </div>
+
+    <!-- Feature 4 -->
+    <div class="glass-card feature-card">
+      <div class="feature-icon">📲</div>
+      <h3 class="feature-title">Multi-Factor Auth (MFA/TOTP)</h3>
+      <p class="feature-desc">Optional two-factor authentication (TOTP) utilizing Google Authenticator or standard authenticator apps with dynamic QR codes.</p>
+    </div>
+
+    <!-- Feature 5 -->
+    <div class="glass-card feature-card">
+      <div class="feature-icon">🚫</div>
+      <h3 class="feature-title">Rate Limiting & CAPTCHA</h3>
+      <p class="feature-desc">Mitigation against brute force and automated attacks using custom mathematical CAPTCHAs and express rate limiting.</p>
+    </div>
+
+    <!-- Feature 6 -->
+    <div class="glass-card feature-card">
+      <div class="feature-icon">📝</div>
+      <h3 class="feature-title">STRIDE & DREAD Audits</h3>
+      <p class="feature-desc">Extensive threat modeling and risk assessments mapped to system design, ensuring mitigations for every structural risk.</p>
+    </div>
+  </section>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Shared Javascript -->
+  <script src="/js/main.js"></script>
+</body>
+</html>

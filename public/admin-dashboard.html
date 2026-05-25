@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield | Administrative Operations Panel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <div class="logo-icon">🛡️</div>
+        <span>CyberShield</span>
+      </a>
+      <nav class="nav-links" id="navbar-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/user-dashboard.html" class="nav-link">User Dashboard</a>
+        <span class="role-badge admin" id="user-navbar-role">Admin</span>
+        <button id="btn-logout" class="btn btn-secondary btn-sm">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <div class="user-welcome">
+        <h2>Administrative Operations</h2>
+        <p>Real-time security auditing, user role delegation, and access controls</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span class="role-badge admin" id="user-profile-role">System Admin</span>
+        <span id="user-profile-name" style="font-weight: 700; color: #fff;">Admin Username</span>
+      </div>
+    </div>
+
+    <!-- Security Statistics Counters Row -->
+    <div class="admin-stats-row">
+      <!-- Stat 1 -->
+      <div class="glass-card stat-card">
+        <div class="stat-info">
+          <h3>Total Users</h3>
+          <p id="stat-total-users">0</p>
+        </div>
+        <div class="stat-icon">👥</div>
+      </div>
+      
+      <!-- Stat 2 -->
+      <div class="glass-card stat-card">
+        <div class="stat-info">
+          <h3>Failed Logins</h3>
+          <p id="stat-failed-logins">0</p>
+        </div>
+        <div class="stat-icon">🚨</div>
+      </div>
+
+      <!-- Stat 3 -->
+      <div class="glass-card stat-card">
+        <div class="stat-info">
+          <h3>MFA Enabled</h3>
+          <p id="stat-mfa-users">0</p>
+        </div>
+        <div class="stat-icon">🔐</div>
+      </div>
+
+      <!-- Stat 4 -->
+      <div class="glass-card stat-card">
+        <div class="stat-info">
+          <h3>Security Alerts</h3>
+          <p id="stat-security-alerts">0</p>
+        </div>
+        <div class="stat-icon">⚠️</div>
+      </div>
+    </div>
+
+    <!-- Main Admin Dashboard Panel Stack -->
+    <div class="dashboard-grid">
+      <!-- Section 1: User Management Panel -->
+      <div class="glass-card dashboard-grid-full" style="padding: 30px;">
+        <h3 class="card-title">
+          <span class="card-title-icon">⚙️</span>
+          User Management Control Panel
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+          Manage registered credentials, enforce policies, assign roles, or terminate profiles. Encryption at rest ciphertext is shown in the table to verify secure storage in MongoDB.
+        </p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Assigned Role</th>
+                <th>MFA Status</th>
+                <th>Encrypted Notes Ciphertext (At Rest)</th>
+                <th>Registered Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-table-body">
+              <!-- Content loaded dynamically via AJAX -->
+              <tr>
+                <td colspan="6" class="text-center" style="color: var(--text-muted); padding: 30px;">
+                  Loading system credential registry...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 2: Retro Monospaced Live Security Audit logs Terminal -->
+      <div class="glass-card dashboard-grid-full" style="padding: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <h3 class="card-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+            <span class="card-title-icon">💻</span>
+            Live Security & Audit Logs Terminal
+          </h3>
+          <button id="btn-refresh-logs" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">
+            🔄 Refresh Audit Stream
+          </button>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+          Auditing operations occurring across the network. Security indicators reflect database activities, login validation checks, role changes, and rate limiting events.
+        </p>
+
+        <!-- The Monospace Console Panel -->
+        <div class="logs-console" id="admin-logs-console">
+          <!-- Sample entry that gets overwritten -->
+          <div class="log-entry success">
+            <span class="log-time">[2026-05-25 21:00:00]</span>
+            <span class="log-type">[AUDIT_INIT]</span>
+            <span class="log-user">System</span>
+            <span class="log-details">Live Security Audit Console Stream Online. Waiting for connections...</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

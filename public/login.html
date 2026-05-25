@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield | Secure Authentication</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    #mfa-step-container {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <div class="logo-icon">🛡️</div>
+        <span>CyberShield</span>
+      </a>
+      <nav class="nav-links" id="navbar-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/login" class="nav-link active">Login</a>
+        <a href="/signup" class="btn btn-primary">Sign Up</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="auth-container">
+    <div class="glass-card auth-card">
+      <div id="login-step-container">
+        <h2>Secure Login</h2>
+        <p>Authenticate your profile session to proceed</p>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input 
+              type="text" 
+              id="username" 
+              name="username" 
+              placeholder="Enter username" 
+              class="input-control" 
+              required 
+              autocomplete="username"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder="Enter password" 
+              class="input-control" 
+              required
+              autocomplete="current-password"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="captchaAnswer">Mathematical CAPTCHA Verification</label>
+            <div class="captcha-container">
+              <div class="captcha-img" id="captcha-box">
+                <!-- SVG captcha will load here -->
+                Loading CAPTCHA...
+              </div>
+              <button type="button" class="captcha-refresh" id="btn-refresh-captcha" title="Refresh CAPTCHA">
+                🔄
+              </button>
+            </div>
+            <input 
+              type="number" 
+              id="captchaAnswer" 
+              name="captchaAnswer" 
+              placeholder="Enter answer" 
+              class="input-control" 
+              required
+            >
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+            Authenticate
+          </button>
+        </form>
+      </div>
+
+      <!-- MFA Step Container (Visible only when MFA requested) -->
+      <div id="mfa-step-container">
+        <h2>Verification Required</h2>
+        <p>Enter the 6-digit verification code from your Authenticator app.</p>
+
+        <form id="mfa-login-form">
+          <div class="form-group">
+            <label for="mfaToken">MFA Verification Code</label>
+            <input 
+              type="text" 
+              id="mfaToken" 
+              name="mfaToken" 
+              placeholder="000000" 
+              class="input-control" 
+              required 
+              pattern="[0-9]{6}" 
+              inputmode="numeric" 
+              maxlength="6"
+              style="text-align: center; font-size: 1.5rem; letter-spacing: 0.2em;"
+              autocomplete="one-time-code"
+            >
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+            Verify Token
+          </button>
+        </form>
+      </div>
+
+      <div class="auth-footer">
+        New here? <a href="/signup">Create Secure Profile</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>
