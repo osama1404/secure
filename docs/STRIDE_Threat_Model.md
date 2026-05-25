@@ -1,19 +1,37 @@
 # STRIDE Threat Modeling Report
 
-**Project Name:** CyberShield Secure Web Application  
-**Module:** Secure Software Development  
-**Academic Target:** 15 Marks (Week 14)  
-**Status:** Approved & Implemented  
+## Application Name: CyberShield Secure Web Application
+## Team Members: Suad Sayed
 
 ---
 
-## 1. System Overview & Architecture
+## Threat Identification
 
-CyberShield is a secure web application utilizing a modern 3-tier architecture: **Vanilla JS/CSS Frontend**, **Node.js/Express Server Backend**, and a persistent **MongoDB Database**. It implements advanced session managers, Role-Based Access Controls (RBAC), multi-factor token authentication (MFA/TOTP), and data encryption at rest.
+| Threat Category | Description | Potential Impact | Mitigation Strategies |
+|-----------------|-------------|------------------|-----------------------|
+| **Spoofing** | Attacker intercepts/replays active session identifiers or brute-forces user credentials to masquerade as another user. | Unidentified accounts hijacking, unauthorized personal note reading, and system compromise. | 1. Hash passwords using **Bcrypt (12 rounds)**.<br>2. Dynamic server-side **Math CAPTCHA SVGs** block bot scripts.<br>3. Optional second-factor **TOTP Multi-Factor Authentication (MFA)**. |
+| **Tampering** | Attacker modifies session cookie parameters to hijack authentication flows, or tampers with note parameters sent to APIs. | Compromising account security, parameter manipulation, and unauthorized database overrides. | 1. Enable **HttpOnly**, **SameSite=Strict** cookie attributes to prevent CSRF.<br>2. Validation using **express-validator**.<br>3. Input sanitization using **xss** to block XSS payloads. |
+| **Repudiation** | System events occur without logging, letting users perform sensitive admin/user changes and later deny doing so. | Lack of security event attribution, inability to perform forensic audits, and trace compromises. | 1. Persistent Mongoose **SecurityLogModel** in MongoDB.<br>2. Automated recording of critical events (`LOGIN_FAILURE`, `MFA_SETUP`, `ROLE_CHANGE`, `USER_DELETED`, `RATE_LIMIT_EXCEEDED`). |
+| **Information Disclosure** | Leakage of session IDs via browser XSS scripts, or direct access to user notes and MFA secrets in database backups. | Theft of active sessions, exposure of sensitive personal notes (SSNs, secrets) at rest, and leaked MFA secret base32 keys. | 1. **AES-256-GCM symmetric encryption at rest** for user notes and MFA secrets.<br>2. Helmet Content Security Policy (CSP) headers block browser data leaks.<br>3. Cookies hidden from DOM JS scripts via `HttpOnly`. |
+| **Denial of Service** | Attacker floods login or signup routes with thousands of simultaneous TCP connections, overloading Mongo DB threads. | Complete application downtime, server crashes, and database memory exhaustion. | 1. Global API request throttling using **express-rate-limit** (100 reqs/15 mins).<br>2. Strict login/signup throttling (5 reqs/min).<br>3. JSON body parser maximum limits locked at a safe `10kb` threshold. |
+| **Elevation of Privilege** | Regular user attempts to access administrative pages or directly promote their account role. | Access to restricted admin panels, unauthorized user deletions, role demotions, and system takeover. | 1. Server-side **Role-Based Access Control (RBAC)** middleware validation.<br>2. Serving dashboards (`/admin-dashboard.html`) strictly via Express authentication controllers.<br>3. Block role modification inputs from signup forms. |
 
-### 1.1 Data Flow Diagram (DFD)
+---
 
-The following diagram maps the data flows, process boundaries, trust boundaries, and data stores within the application:
+## STRIDE Categories:
+
+| Threat Type | Description | Example in Your App | Mitigation |
+|-------------|-------------|---------------------|------------|
+| **S**poofing | Impersonating another user | Login without verification / Brute force password guessing | Use hashed passwords via Bcrypt, TOTP Multi-Factor Authentication, math CAPTCHAs, and session fingerprinting |
+| **T**ampering | Modifying data in transit or storage | Changing data in DB via API / CSRF parameter tweaks | Use HTTP-only/SameSite=Strict cookies, express-validator schemas, and `xss` sanitizing filters |
+| **R**epudiation | Denying actions performed | No logs for user actions | Enable logging via custom Mongoose SecurityLogModel audit trails |
+| **I**nformation Disclosure | Leaking sensitive data | Exposing email/password in error / Reading DB notes at rest | Use generic errors, hide detailed server stacks, and apply AES-256-GCM symmetric block ciphers at rest |
+| **D** Denial of Service | Making app unavailable | Spamming login or signup | Add global rate limiting (100 reqs/15 mins), auth rate limits (5 reqs/min), and 10kb body payload limits |
+| **E** Elevation of Privilege | Gaining unauthorized access | User accessing admin panel | Implement role-based checks (RBAC) on Express controllers and restrict HTML page direct serving |
+
+---
+
+## STRIDE Diagram
 
 ```mermaid
 flowchart TD
@@ -50,45 +68,5 @@ flowchart TD
 
 ---
 
-## 2. STRIDE Threat Analysis
-
-We apply the **STRIDE** methodology to systematically evaluate security risks across the application's components and boundaries:
-
-| Threat Category | Threat Description | Affected Component | Implemented Mitigation |
-| :--- | :--- | :--- | :--- |
-| **S**poofing | An attacker guesses or brute-forces another user's credentials to masquerade as them. | Authentication & Route controllers | 1. Hashed password storage using **Bcrypt (12 rounds)**.<br>2. **Multi-Factor Authentication (MFA/TOTP)** via Google Authenticator.<br>3. Strict request rate limiting (**5 attempts/min on auth**).<br>4. Offline-friendly, server-generated **Mathematical CAPTCHA**. |
-| **T**ampering | An attacker intercepts and alters session cookies, input parameters, or sensitive user notes. | Cookie Session & Inputs | 1. **SameSite=Strict** and **HttpOnly** cookies to prevent external domain manipulation and CSRF.<br>2. Parameter validation using **express-validator**.<br>3. Cross-Site Scripting (XSS) input filtering using **xss** sanitizer.<br>4. Encryption at rest for user notes using **AES-256-GCM** to prevent direct database tampering. |
-| **R**epudiation | A user denies performing an action (e.g. promoting a role or deleting an account) due to lack of logging. | Audit Log subsystem | 1. Persistent, structured **SecurityLog** Mongoose model in MongoDB.<br>2. Systematic logging of critical operations (`LOGIN_FAILURE`, `MFA_SETUP`, `ROLE_CHANGE`, `USER_DELETED`, `RATE_LIMIT_EXCEEDED`).<br>3. Automatically captured IP addresses and User-Agent headers. |
-| **I**nformation Disclosure | An attacker steals session IDs via XSS or reads sensitive personal data directly from the database files. | Data store & Cookie Session | 1. **HttpOnly** cookies block client-side script access to session tokens, mitigating XSS theft.<br>2. AES-256-GCM encryption of sensitive note variables and MFA secrets at rest.<br>3. Strict Content Security Policy (CSP) headers block unauthorized external script injection. |
-| **D**enial of Service | An attacker floods the auth routes with high-volume requests to crash the application database. | Express Server Routing | 1. Global rate-limiting middleware (**100 requests per 15 minutes** per IP).<br>2. Hard-coded payload limiters (`10kb` limit on JSON/URLEncoded inputs) to prevent memory exhaustion attacks.<br>3. Indexing on username queries in MongoDB to optimize search speed. |
-| **E**levation of Privilege | A standard user gains access to admin dashboards by manually navigating to `/admin-dashboard.html` or injecting roles. | Authorization (RBAC) | 1. Strict **Role-Based Access Control (RBAC)** checking session roles (`req.session.user.role`).<br>2. Restricting client static dashboards by routing dashboard HTML pages through authorization middleware.<br>3. Server-side validation strictly blocking standard users from promoting roles. |
-
----
-
-## 3. Specific Threat Modeling Scenarios
-
-### Scenario A: Session Hijacking via Man-in-the-Middle (MITM)
-*   **STRIDE Category:** Spoofing / Tampering / Information Disclosure.
-*   **Threat Vector:** An attacker captures the `SECURE_SESS_ID` cookie value from a user's network traffic and uses it on another device to hijack their active session.
-*   **Applied Mitigation:** 
-    1. During login, a cryptographic fingerprint hash is generated: `sha256(User-Agent + Client-IP)`.
-    2. This fingerprint is bound directly into the server's session record (`req.session.fingerprint`).
-    3. On every incoming request, the `preventSessionHijacking` middleware regenerates the current request fingerprint and compares it to the session fingerprint.
-    4. If a mismatch is detected, the server immediately destroys the session, records a `UNAUTHORIZED_ACCESS` log entry, clears cookies, and forces re-authentication.
-
-### Scenario B: Database Breach / Direct Access
-*   **STRIDE Category:** Information Disclosure.
-*   **Threat Vector:** An attacker gains unauthorized direct read access to MongoDB database backups or raw database logs, stealing users' MFA secrets and private notes.
-*   **Applied Mitigation:**
-    1. **AES-256-GCM symmetric encryption** is applied to both the user's `personalNote` and `twoFactorSecret` fields before storage.
-    2. A cryptographically secure 12-byte initialization vector (IV) is dynamically generated for each encryption event.
-    3. The ciphertext, IV, and the 16-byte authenticity tag (which guarantees data integrity) are combined and stored in the database.
-    4. Even if the database files are fully compromised, the attacker cannot read notes or MFA base32 secrets without the symmetric key stored securely in the server's `.env` environment variables.
-
-### Scenario C: Password Guessing / Brute Force
-*   **STRIDE Category:** Spoofing / Denial of Service.
-*   **Threat Vector:** An attacker runs automated dictionaries against `/api/login` trying to guess user passwords.
-*   **Applied Mitigation:**
-    1. **Bcrypt with 12 salt rounds** ensures password comparison is CPU-intensive, slowing offline dictionary cracking to a crawl.
-    2. **Rate Limiting** restricts IPs to 5 attempts per minute, locking brute-force script velocities.
-    3. **Mathematical CAPTCHA** requires the client to evaluate a new, randomized algebraic formula (`X + Y = ?`) server-side for each submission, preventing automated login submissions completely.
+## Notes
+- All STRIDE threats have corresponding DREAD scores in the next section.
