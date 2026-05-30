@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const { MongoStore } = require('connect-mongo');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const speakeasy = require('speakeasy');
@@ -126,8 +126,8 @@ app.post('/api/signup', authLimiter, [
     .trim()
     .escape(),
   body('password')
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
+    .isLength({ min: 8, max: 128 })
+    .withMessage('Password must be between 8 and 128 characters long')
     .matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/)
     .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
 ], async (req, res) => {

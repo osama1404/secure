@@ -148,8 +148,9 @@ function saveSensitiveNote() {
 }
 
 /**
- * Toggle MFA display containers based on status
- */
+brew services start mongodb-community
+# OR run mongod directly:
+mongod --dbpath /usr/local/var/mongodb */
 function toggleMfaPanels(isEnabled) {
   const activeContainer = document.getElementById('mfa-status-active-container');
   const inactiveContainer = document.getElementById('mfa-status-inactive-container');
