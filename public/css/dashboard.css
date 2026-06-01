@@ -342,3 +342,74 @@ tr:hover td {
   color: #d1d5da;
   word-break: break-all;
 }
+
+/* Premium UI/UX Aesthetic Enhancements */
+.live-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-success);
+  border-radius: 50%;
+  margin-left: 10px;
+  box-shadow: 0 0 8px var(--color-success);
+  animation: pulse-glow 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px var(--color-success); }
+  50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 12px var(--color-success); }
+  100% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px var(--color-success); }
+}
+
+.self-badge {
+  background: rgba(0, 242, 254, 0.12);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 50px;
+  margin-left: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  vertical-align: middle;
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.1);
+}
+
+tr {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+tr:hover td {
+  background: rgba(255, 255, 255, 0.015) !important;
+}
+
+.table-wrapper {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.table-wrapper:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+
+.btn-sm-action, .btn-delete {
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-sm-action:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+}
+
+.btn-delete:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 12px rgba(255, 56, 56, 0.45);
+}
+
+.btn-sm-action:active, .btn-delete:active {
+  transform: translateY(0) scale(0.97);
+}
+

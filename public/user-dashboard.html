@@ -37,46 +37,93 @@
     </div>
 
     <div class="dashboard-grid">
-      <!-- Section 1: Encryption at Rest Demonstration -->
-      <div class="glass-card" style="padding: 30px;">
+      <!-- Section 1: Secure Cryptographic Notes Vault Grid -->
+      <div class="glass-card dashboard-grid-full" style="padding: 30px;">
         <h3 class="card-title">
           <span class="card-title-icon">🔐</span>
-          AES-256-GCM Data Encryption Demo
+          AES-256-GCM Secure Cryptographic Notes Vault
         </h3>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
-          This demo shows <strong>symmetric encryption at rest</strong>. Any text saved here is encrypted on the server before going to MongoDB. Below you can view the actual database ciphertext versus the secure plaintext.
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+          This vault demonstrates <strong>authenticated symmetric encryption at rest (AES-256-GCM)</strong>. 
+          Save multiple notes below. By default, they are stored and displayed as encrypted database ciphertexts. 
+          Challenge your 2FA Google Authenticator token below to decrypt and reveal the plaintexts!
         </p>
 
-        <div class="encrypt-demo-container">
-          <div class="form-group">
-            <label for="personal-note-input">Personal Sensitive Note</label>
-            <textarea 
-              id="personal-note-input" 
-              rows="4" 
-              class="input-control" 
-              placeholder="Enter sensitive personal information here... (e.g., SSN, secret keys)"
-              style="resize: none;"
-            ></textarea>
-          </div>
-
-          <button id="btn-save-note" class="btn btn-primary" style="align-self: flex-start;">
-            Encrypt & Save Note
-          </button>
-
-          <div style="margin-top: 10px;">
-            <label>Database Stored Ciphertext (IV : Tag : Cipher)</label>
-            <div class="crypto-display cipher" id="note-cipher-display">
-              Loading encrypted ciphertext...
+        <!-- Two column sub-grid: Note Creator (left) & Note Vault Grid (right) -->
+        <div style="display: grid; grid-template-columns: 1fr; gap: 30px; margin-bottom: 20px;">
+          
+          <!-- Column A: Note Creator Form -->
+          <div class="glass-card" style="padding: 24px; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03);">
+            <h4 style="margin-bottom: 16px; font-size: 1.1rem; color: #fff;">✍️ Create Encrypted Note</h4>
+            <div class="form-group">
+              <label for="personal-note-input">Note Content (Social Security #, Password, Secret Key)</label>
+              <textarea 
+                id="personal-note-input" 
+                rows="4" 
+                class="input-control" 
+                placeholder="Type a sensitive personal note here..."
+                style="resize: none;"
+              ></textarea>
             </div>
+            <button id="btn-save-note" class="btn btn-primary" style="width: 100%; justify-content: center;">
+              🔒 Encrypt & Add to Vault
+            </button>
           </div>
 
-          <div>
-            <label>Decrypted Server Plaintext</label>
-            <div class="crypto-display plain" id="note-plain-display">
-              Loading decrypted plaintext...
+          <!-- Column B: Decryption Step-up Vault Controller -->
+          <div class="glass-card" style="padding: 24px; background: rgba(0,0,0,0.15); border: 1px dashed var(--border-color);">
+            <h4 style="margin-bottom: 12px; font-size: 1.1rem; color: #fff; text-align: center;">🔓 Vault Access Controller</h4>
+            
+            <!-- Default Locked State -->
+            <div id="note-decrypt-locked-container" style="text-align: center; padding: 10px 0;">
+              <p id="note-decrypt-status-text" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; max-width: 480px; margin-left: auto; margin-right: auto;">
+                All plaintexts are locked under Multi-Factor Authentication. Please enter your 6-digit Authenticator OTP below to unlock the vault.
+              </p>
+              
+              <!-- OTP Input for Decryption -->
+              <div id="note-decrypt-otp-form" style="display: none; max-width: 240px; margin: 0 auto 16px auto;">
+                <input 
+                  type="text" 
+                  id="decrypt-otp-input" 
+                  class="input-control" 
+                  placeholder="000 000"
+                  style="text-align: center; font-size: 1.2rem; letter-spacing: 0.15em; padding: 10px 16px;"
+                  maxlength="6"
+                >
+              </div>
+              
+              <button id="btn-unlock-note" class="btn btn-primary btn-sm" style="width: auto; padding: 10px 24px;" disabled>
+                Unlock Decryption Vault
+              </button>
+            </div>
+
+            <!-- Unlocked State (Hidden by default) -->
+            <div id="note-decrypt-unlocked-container" style="display: none; text-align: center; padding: 10px 0;">
+              <div class="mfa-status-indicator active" style="margin-bottom: 16px;">🟢 VAULT DECRYPTED AND ACCESS GRANTED</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+                Your notes are decrypted on-the-fly. Remember to lock the vault when you are finished.
+              </p>
+              <button id="btn-lock-note" class="btn btn-secondary btn-sm" style="padding: 8px 20px;">
+                🔒 Re-Lock Note Vault
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- The Notes Grid Wrapper (Hidden until OTP is successfully validated) -->
+        <div id="notes-archive-wrapper" style="display: none;">
+          <h4 style="margin-top: 24px; margin-bottom: 16px; font-size: 1.15rem; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+            🗂️ Stored Note Records Vault
+          </h4>
+          <div id="notes-grid-container" class="admin-stats-row">
+            <!-- Populated dynamically via AJAX -->
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">
+              Loading cryptographic notes archive...
             </div>
           </div>
         </div>
+
       </div>
 
       <!-- Section 2: Multi-Factor Authentication Panel -->

@@ -149,6 +149,10 @@ header {
   text-decoration: none;
 }
 
+.btn:active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
   color: #000;

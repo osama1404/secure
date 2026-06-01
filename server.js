@@ -358,18 +358,19 @@ app.get('/api/user/note', requireRole(['User', 'Admin']), async (req, res) => {
     const user = await UserModel.findById(req.session.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    let decryptedNote = '';
-    if (user.personalNote) {
-      decryptedNote = decryptData(user.personalNote);
-    }
+    // Return array of encrypted notes
+    const notes = user.personalNotes.map(n => ({
+      id: n._id,
+      encryptedContent: n.encryptedContent,
+      createdAt: n.createdAt
+    }));
 
     return res.json({ 
-      encryptedNote: user.personalNote || '(Empty - No Note Saved)', 
-      decryptedNote,
+      notes,
       twoFactorEnabled: user.twoFactorEnabled
     });
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to retrieve sensitive note' });
+    return res.status(500).json({ error: 'Failed to retrieve sensitive notes' });
   }
 });
 
@@ -378,18 +379,92 @@ app.post('/api/user/note', requireRole(['User', 'Admin']), [
 ], async (req, res) => {
   const { note } = req.body;
   
+  if (!note || note.trim().length === 0) {
+    return res.status(400).json({ error: 'Note content cannot be empty.' });
+  }
+
   try {
     const user = await UserModel.findById(req.session.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Encrypt at rest using AES-256-GCM
-    user.personalNote = encryptData(note);
+    // Encrypt and add to notes array
+    const encryptedContent = encryptData(note);
+    user.personalNotes.push({ encryptedContent });
+    
+    // Also update legacy single personalNote for backward compatibility
+    user.personalNote = encryptedContent;
+    
     await user.save();
 
-    await logSecurityEvent('NOTE_UPDATE', user.username, req, 'Sensitive personal note updated & encrypted at rest');
-    return res.json({ success: true, message: 'Note encrypted and saved at rest successfully!' });
+    await logSecurityEvent('NOTE_UPDATE', user.username, req, 'New personal note encrypted & saved in user note vault');
+    return res.json({ success: true, message: 'New note encrypted and saved successfully!' });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to save encrypted note' });
+  }
+});
+
+// Delete a specific note by subdocument ID
+app.delete('/api/user/note/:id', requireRole(['User', 'Admin']), async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await UserModel.findById(req.session.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Pull the subdocument from array by its ID
+    user.personalNotes.pull(id);
+    await user.save();
+
+    await logSecurityEvent('NOTE_UPDATE', user.username, req, `Personal note deleted: ${id}`);
+    return res.json({ success: true, message: 'Note deleted successfully.' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to delete note.' });
+  }
+});
+
+// Secure Decryption with Step-up MFA (OTP) verification
+app.post('/api/user/note/decrypt', requireRole(['User', 'Admin']), async (req, res) => {
+  const { otpToken } = req.body;
+
+  try {
+    const user = await UserModel.findById(req.session.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (!user.twoFactorEnabled) {
+      return res.status(400).json({ error: 'Multi-Factor Authentication (2FA) must be enabled on your account to activate this secure decryption vault.' });
+    }
+
+    if (!otpToken) {
+      return res.status(400).json({ error: '6-digit Authenticator verification token is required to unlock your notes.' });
+    }
+
+    // Verify step-up OTP token
+    const decryptedSecret = decryptData(user.twoFactorSecret);
+    const verified = speakeasy.totp.verify({
+      secret: decryptedSecret,
+      encoding: 'base32',
+      token: otpToken,
+      window: 1 // Allow clock drift
+    });
+
+    if (!verified) {
+      await logSecurityEvent('MFA_FAILED', user.username, req, 'Step-up MFA challenge failed for personal notes decryption');
+      return res.status(401).json({ error: 'Invalid verification token. Decryption access denied.' });
+    }
+
+    // Success! Decrypt all notes in the array
+    const decryptedNotes = user.personalNotes.map(n => ({
+      id: n._id,
+      decryptedContent: decryptData(n.encryptedContent),
+      createdAt: n.createdAt
+    }));
+
+    await logSecurityEvent('MFA_VERIFIED', user.username, req, 'Step-up MFA challenge successful. Personal notes decrypted.');
+    return res.json({ success: true, decryptedNotes });
+
+  } catch (err) {
+    console.error('Notes decryption step-up error:', err);
+    return res.status(500).json({ error: 'An internal error occurred during decryption.' });
   }
 });
 
@@ -499,7 +574,7 @@ app.post('/api/mfa/disable', requireRole(['User', 'Admin']), async (req, res) =>
 // Get all users
 app.get('/api/admin/users', requireRole('Admin'), async (req, res) => {
   try {
-    const users = await UserModel.find({}, 'username role twoFactorEnabled createdAt personalNote');
+    const users = await UserModel.find({}, 'username role twoFactorEnabled createdAt personalNote personalNotes');
     return res.json(users);
   } catch (err) {
     return res.status(500).json({ error: 'Failed to retrieve users' });

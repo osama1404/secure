@@ -43,6 +43,12 @@ const UserSchema = new mongoose.Schema({
     type: String, // Encrypted sensitive user note (AES-256-GCM)
     default: ''
   },
+  personalNotes: [
+    {
+      encryptedContent: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now }
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now

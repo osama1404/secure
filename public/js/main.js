@@ -245,15 +245,25 @@ function checkSessionStatus() {
         
         // Adapt Navbar Links
         if (navbarLinks) {
-          let dashboardLink = u.role === 'Admin' ? '/admin-dashboard.html' : '/user-dashboard.html';
           let roleBadgeClass = u.role === 'Admin' ? 'role-badge admin' : 'role-badge user';
           
-          navbarLinks.innerHTML = `
-            <a href="/" class="nav-link">Home</a>
-            <a href="${dashboardLink}" class="nav-link">Dashboard</a>
+          let navHtml = `<a href="/" class="nav-link">Home</a>`;
+          if (u.role === 'Admin') {
+            navHtml += `
+              <a href="/admin-dashboard.html" class="nav-link">Admin Panel</a>
+              <a href="/user-dashboard.html" class="nav-link">User Dashboard</a>
+            `;
+          } else {
+            navHtml += `
+              <a href="/user-dashboard.html" class="nav-link">Dashboard</a>
+            `;
+          }
+          navHtml += `
             <span class="${roleBadgeClass}">${u.role}</span>
             <button id="btn-logout" class="btn btn-secondary btn-sm">Logout</button>
           `;
+          
+          navbarLinks.innerHTML = navHtml;
           
           // Re-bind the logout button
           document.getElementById('btn-logout').addEventListener('click', handleLogout);
