@@ -59,7 +59,7 @@ Reports/screenshots are included in the `scans/` directory.
 ---
 
 ## Deployment
-Link: Local Application (http://localhost:5000)
+Link: Local Application (http://localhost:3000)
 
 Instructions:
 ```bash
